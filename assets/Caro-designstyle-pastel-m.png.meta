@@ -1,0 +1,32 @@
+{
+  "ver": "2.3.0",
+  "uuid": "b085ff9b-ec09-412a-ac3a-f949a05ff39a",
+  "type": "sprite",
+  "wrapMode": "clamp",
+  "filterMode": "bilinear",
+  "premultiplyAlpha": false,
+  "platformSettings": {},
+  "subMetas": {
+    "Caro-designstyle-pastel-m": {
+      "ver": "1.0.3",
+      "uuid": "c493f19c-6e4f-4dc0-885c-ce3354f00fac",
+      "rawTextureUuid": "b085ff9b-ec09-412a-ac3a-f949a05ff39a",
+      "trimType": "auto",
+      "trimThreshold": 1,
+      "rotated": false,
+      "offsetX": 0,
+      "offsetY": -6.5,
+      "trimX": 0,
+      "trimY": 72,
+      "width": 216,
+      "height": 69,
+      "rawWidth": 216,
+      "rawHeight": 200,
+      "borderTop": 0,
+      "borderBottom": 0,
+      "borderLeft": 0,
+      "borderRight": 0,
+      "subMetas": {}
+    }
+  }
+}
