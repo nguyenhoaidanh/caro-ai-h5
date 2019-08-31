@@ -20,7 +20,6 @@ window.count = {
     GappedFour: 0,
     GappedTwoTwo: 0
 }
-
 cc.Class({
     extends: cc.Component,
     properties: {
@@ -41,7 +40,7 @@ cc.Class({
     },
     init(username = localStorage.username) {
         localStorage.username = username
-        this.depth = 2
+        this.depth = 1
         this.time = 0
         this.matrix = []
         this.isFinished = false
@@ -74,7 +73,7 @@ cc.Class({
             console.time()
             this.AIMove(this.matrix)
             console.timeEnd()
-        }, 0.01)
+        }, 0.001)
         //
     },
     makeNewCell(row, col) {
@@ -88,33 +87,32 @@ cc.Class({
         newCell.getComponent("Cell").show(isX)
         //
         const personWin = this.checkWin(this.matrix, val, [row, col])
-
         if (personWin) {
             this.isFinished = true
             const username = localStorage.username
-            const str = personWin == 'X' ? 'Bot win! He are the best in the world.\n You are so stupid !'
+            const str = personWin == 'X' ?
+                'Bot win! He are the best in the world.\n You are so stupid !'
                 : 'You win! You are the best. \nCheck leaderboard now! '
             this.scheduleOnce(() => {
-                const item = { name: username, time: this.formatTime(this.time), opponent: 'Bot' }
-
-                console.log(username);
-
+                const item = {
+                    name: username,
+                    time: this.formatTime(this.time),
+                    opponent: 'Bot',
+                    userWin: personWin == 'X' ? false : true
+                }
                 cc.find('Canvas/BXH').getComponent("LeaderBoard").addToLeaderBoard(item, personWin)
                 cc.find('Canvas/Alert').getComponent("Alert").show(str)
             }, 0.2)
         }
         this.isX = !this.isX
         this.lbTurn.string = (!this.isX ? 'Your' : 'Bot') + ' turn'
-
     },
     AIMove(state) {
         if (this.isX) { //AI 
             let board_state = JSON.parse(JSON.stringify(state))
             let bestState = this.minimaxRoot(board_state, true, this.isX, this.depth)
-            const nm = this.getBestMove(state, bestState) // x y
-            let row = nm[0]
-            let col = nm[1]
-            this.makeNewCell(row, col)
+            const nm = this.getBestMove(state, bestState) // x y  
+            this.makeNewCell(nm[0], nm[1])
         }
     },
     getBestMove(state, newState) {
@@ -194,6 +192,7 @@ cc.Class({
                         arr = [ele1, ele2, ele3, ele4, ele5]
                         counts = this.cal(arr, isX, counts)
                         counts2 = this.cal(arr, !isX, counts2)
+                        kq += 2.5 * this.calPriority(arr, isX)
                         if (col - 3 >= 0) {
                             arr = [m[row][col - 3], ele1, ele2, ele3, ele4, ele5]
                             counts = this.cal(arr, isX, counts)
@@ -215,6 +214,7 @@ cc.Class({
                         arr = [ele1, ele2, ele3, ele4, ele5]
                         counts = this.cal(arr, isX, counts)
                         counts2 = this.cal(arr, !isX, counts2)
+                        kq += 2.5 * this.calPriority(arr, isX)
                         if (row - 3 >= 0) {
                             arr = [m[row - 3][col], ele1, ele2, ele3, ele4, ele5]
                             counts = this.cal(arr, isX, counts)
@@ -236,6 +236,7 @@ cc.Class({
                         arr = [ele1, ele2, ele3, ele4, ele5]
                         counts = this.cal(arr, isX, counts)
                         counts2 = this.cal(arr, !isX, counts2)
+                        kq += 2.5 * this.calPriority(arr, isX)
                         if (row >= 3 && col >= 3) {
                             arr = [m[row - 3][col - 3], ele1, ele2, ele3, ele4, ele5]
                             counts = this.cal(arr, isX, counts)
@@ -257,6 +258,7 @@ cc.Class({
                         arr = [ele1, ele2, ele3, ele4, ele5]
                         counts = this.cal(arr, isX, counts)
                         counts2 = this.cal(arr, !isX, counts2)
+                        kq += 2.5 * this.calPriority(arr, isX)
                         if (row + 3 <= n - 1 && col >= 3) {
                             arr = [m[row + 3][col - 3], ele1, ele2, ele3, ele4, ele5]
                             counts = this.cal(arr, isX, counts)
@@ -272,8 +274,6 @@ cc.Class({
             }
             for (let key of Object.keys(scores)) {
                 kq += counts[key] * scores[key]
-            }
-            for (let key of Object.keys(scores)) {
                 kq += -counts2[key] * scores[key]
             }
             return kq + (Constant - this.totalDis(pos, state))
@@ -282,6 +282,24 @@ cc.Class({
             return -win
         }
 
+    },
+    calPriority(arr, isX) {
+        let val = isX ? 'X' : 'O'
+        let Oval = !isX ? 'X' : 'O'
+        let rs = 0
+        if (arr[0] == null && arr[1] == Oval && arr[2] == Oval && arr[3] == Oval && arr[4] == val) {
+            rs += scores.CappedThree
+        }
+        if (arr[0] == val && arr[1] == Oval && arr[2] == Oval && arr[3] == Oval && arr[4] == null) {
+            rs += scores.CappedThree
+        }
+        if (arr[0] == val && arr[1] == Oval && arr[2] == Oval && arr[3] == Oval && arr[4] == Oval) {
+            rs += scores.CappedFour
+        }
+        if (arr[0] == Oval && arr[1] == Oval && arr[2] == Oval && arr[3] == Oval && arr[4] == val) {
+            rs += scores.CappedFour
+        }
+        return rs
     },
     totalDis(pos, state) {
         let rs = 0
@@ -305,22 +323,23 @@ cc.Class({
             bestMove = win
             for (let node of next_moves) {
                 bestMove = Math.min(bestMove, this.minimax(node, true, !isX, alpha, beta, current_depth - 1))
-                beta = Math.min(beta, bestMove)
-                if (beta <= alpha) {
-                    return bestMove
-                }
+                //beta = Math.min(beta, bestMove) 
+                //cc.log(alpha, beta)
+                // if (beta <= alpha) {
+                //     return bestMove
+                // }
             }
         }
-        else {
-            bestMove = -win
-            for (let node of next_moves) {
-                bestMove = Math.max(bestMove, this.minimax(node, false, !isX, alpha, beta, current_depth - 1))
-                alpha = Math.max(2, alpha, bestMove)
-                if (beta <= alpha) {
-                    return bestMove
-                }
-            }
-        }
+        // else {
+        //     bestMove = -win
+        //     for (let node of next_moves) {
+        //         bestMove = Math.max(bestMove, this.minimax(node, false, !isX, alpha, beta, current_depth - 1))
+        //         alpha = Math.max(2, alpha, bestMove)
+        //         if (beta <= alpha) {
+        //             return bestMove
+        //         }
+        //     }
+        // }
         return bestMove
     },
     cal(arr, isX, counts) {

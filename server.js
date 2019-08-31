@@ -6,7 +6,7 @@ var bodyParser = require('body-parser');
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static('build/web-desktop'));
-app.set('views', __dirname + '/views'); 
+app.set('views', __dirname + '/views');
 app.use(function (req, res, next) {
 	res.header('Access-Control-Allow-Origin', '*');
 	res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
@@ -17,7 +17,7 @@ mongoose
 	.then(() => console.log('MongoDB Connected'))
 	.catch(err => console.log(err));
 app.get('/', (req, res) => {
-	res.sendFile(__dirname+'/build/web-desktop/index.html')
+	res.sendFile(__dirname + '/build/web-desktop/index.html')
 });
 app.use('/api/users', api);
 app.set('port', process.env.PORT || 3000);

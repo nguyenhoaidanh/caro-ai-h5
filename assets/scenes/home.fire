@@ -41,9 +41,9 @@
     },
     "_scale": {
       "__type__": "cc.Vec3",
-      "x": 0.30140624999999766,
-      "y": 0.30140624999999766,
-      "z": 0.30140624999999766
+      "x": 0.5863285604869636,
+      "y": 0.5863285604869636,
+      "z": 0.5863285604869636
     },
     "_quat": {
       "__type__": "cc.Quat",
@@ -2765,8 +2765,8 @@
     "_srcBlendFactor": 1,
     "_dstBlendFactor": 771,
     "_useOriginalSize": false,
-    "_string": "Bot's turn",
-    "_N$string": "Bot's turn",
+    "_string": "Your turn",
+    "_N$string": "Your turn",
     "_fontSize": 25,
     "_lineHeight": 100,
     "_enableWrapText": false,

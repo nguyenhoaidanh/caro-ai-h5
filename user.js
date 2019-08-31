@@ -13,7 +13,11 @@ const UserSchema = new Schema({
   },
   opponent: {
     type: String
-  }
+  },
+  userWin: {
+    type: Boolean,
+    required: true
+  },
 });
 
 module.exports = User = mongoose.model('users', UserSchema);
