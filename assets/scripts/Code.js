@@ -20,6 +20,7 @@ window.count = {
     GappedFour: 0,
     GappedTwoTwo: 0
 }
+
 cc.Class({
     extends: cc.Component,
     properties: {
@@ -36,10 +37,11 @@ cc.Class({
         isFinished: false
     },
     onLoad() {
-        this.init()
+        document.body.style.background = 'lightblue'
     },
-    init() {
-        this.depth = 1
+    init(username = localStorage.username) {
+        localStorage.username = username
+        this.depth = 2
         this.time = 0
         this.matrix = []
         this.isFinished = false
@@ -65,7 +67,6 @@ cc.Class({
         if (this.matrix[row][col]) {
             return
         }
-
         this.makeNewCell(row, col)
 
         //
@@ -90,9 +91,16 @@ cc.Class({
 
         if (personWin) {
             this.isFinished = true
+            const username = localStorage.username
+            const str = personWin == 'X' ? 'Bot win! He are the best in the world.\n You are so stupid !'
+                : 'You win! You are the best. \nCheck leaderboard now! '
             this.scheduleOnce(() => {
-                cc.find('Canvas/Alert').getComponent("Alert")
-                    .show(`"${personWin}" win ! He are the best in the world !`)
+                const item = { name: username, time: this.formatTime(this.time), opponent: 'Bot' }
+
+                console.log(username);
+
+                cc.find('Canvas/BXH').getComponent("LeaderBoard").addToLeaderBoard(item, personWin)
+                cc.find('Canvas/Alert').getComponent("Alert").show(str)
             }, 0.2)
         }
         this.isX = !this.isX
@@ -151,10 +159,13 @@ cc.Class({
     update(dt) {
         if (!this.isFinished) {
             this.time += dt
-            let sec = Math.floor(this.time) % 60
-            let min = Math.floor(this.time / 60)
-            this.lbTime.string = `${String(min).length < 2 ? '0' + min : min} : ${String(sec).length < 2 ? '0' + sec : sec} s`
+            this.lbTime.string = this.formatTime(this.time)
         }
+    },
+    formatTime(time) {
+        let sec = Math.floor(time) % 60
+        let min = Math.floor(time / 60)
+        return `${String(min).length < 2 ? '0' + min : min} : ${String(sec).length < 2 ? '0' + sec : sec} s`
     },
     eval(state, val) {
         const pos = this.getBestMove(state, this.matrix)
