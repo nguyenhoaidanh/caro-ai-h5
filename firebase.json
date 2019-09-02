@@ -1,0 +1,16 @@
+{
+  "hosting": {
+    "public": "build/web-desktop",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "/api/users",
+        "function": "app"
+      }
+    ]
+  }
+}

@@ -9,7 +9,7 @@ window.scores = {
     GappedThree: 100000,
     GappedFour: 100050,
     GappedTwoTwo: 100050,
-}
+} 
 window.count = {
     OpenThree: 0,
     CappedThree: 0,
@@ -39,8 +39,18 @@ cc.Class({
         document.body.style.background = 'lightblue'
     },
     init(username = localStorage.username) {
-        localStorage.username = username
+        if (typeof username == 'object') {
+            const item = {
+                name: localStorage.username + ' gà quá bỏ cuộc',
+                time: this.time,
+                opponent: 'Bot',
+                userWin: false
+            }
+            this.toLeaderBoard(item)
+        }
+        else localStorage.username = username
         this.depth = 1
+        this.isX = false
         this.time = 0
         this.matrix = []
         this.isFinished = false
@@ -94,18 +104,29 @@ cc.Class({
                 'Bot win! He are the best in the world.\n You are so stupid !'
                 : 'You win! You are the best. \nCheck leaderboard now! '
             this.scheduleOnce(() => {
+                let lose = [' thua sấp mặt Bot', ' bị Bot cho ăn hành',
+                    ' quá gà so với Bot', ' thua tâm phục khẩu phục']
+                let win = [' ăn may đánh bại Bot', ' ăn may mới thắng Bot',
+                    ' vật vã mới thắng Bot', ' hên vl mới thắng Bot']
+                let begin = 0
+                let end = 3
+                let idx = Math.floor(Math.random() * (end + 1)) + begin
                 const item = {
-                    name: username,
-                    time: this.formatTime(this.time),
+                    name: username + (personWin != 'X' ? win[idx] : lose[idx]),
+                    time: this.time,
                     opponent: 'Bot',
                     userWin: personWin == 'X' ? false : true
                 }
-                cc.find('Canvas/BXH').getComponent("LeaderBoard").addToLeaderBoard(item, personWin)
+                this.toLeaderBoard(item)
                 cc.find('Canvas/Alert').getComponent("Alert").show(str)
-            }, 0.2)
+            }, 0.001)
+            return
         }
         this.isX = !this.isX
         this.lbTurn.string = (!this.isX ? 'Your' : 'Bot') + ' turn'
+    },
+    toLeaderBoard(item) {
+        cc.find('Canvas/BXH').getComponent("LeaderBoard").addToLeaderBoard(item)
     },
     AIMove(state) {
         if (this.isX) { //AI 
@@ -132,7 +153,7 @@ cc.Class({
         let bestMoveFound = moves[0]
         for (let move of moves) {
             let value = this.minimax(move, !isMax, !isX, -win, win, depth - 1)
-            if (value > bestMove) {
+            if (value >= bestMove) {
                 bestMove = value
                 bestMoveFound = move
             }
@@ -169,7 +190,7 @@ cc.Class({
         const pos = this.getBestMove(state, this.matrix)
         let psWin = this.checkWin(state, val, pos)
         if (psWin == val) {
-            return win
+            return win * win
         }
         else if (psWin == false) {
             let counts = JSON.parse(JSON.stringify(count))
@@ -279,7 +300,7 @@ cc.Class({
             return kq + (Constant - this.totalDis(pos, state))
         }
         else {
-            return -win
+            return -win * win
         }
 
     },
@@ -294,10 +315,25 @@ cc.Class({
             rs += scores.CappedThree
         }
         if (arr[0] == val && arr[1] == Oval && arr[2] == Oval && arr[3] == Oval && arr[4] == Oval) {
-            rs += scores.CappedFour
+            rs += win / 2
         }
         if (arr[0] == Oval && arr[1] == Oval && arr[2] == Oval && arr[3] == Oval && arr[4] == val) {
-            rs += scores.CappedFour
+            rs += win / 2
+        }
+        if (arr[0] == Oval && arr[1] == Oval && arr[2] == val && arr[3] == Oval && arr[4] == Oval) {
+            rs += win / 2
+        }
+        if (arr[0] == Oval && arr[1] == Oval && arr[2] == Oval && arr[3] == val && arr[4] == Oval) {
+            rs += win / 2
+        }
+        if (arr[0] == Oval && arr[1] == val && arr[2] == Oval && arr[3] == Oval && arr[4] == Oval) {
+            rs += win / 2
+        }
+        if (arr[0] == null && arr[1] == Oval && arr[2] == Oval && arr[3] == val && arr[4] == Oval) {
+            rs += win / 2
+        }
+        if (arr[0] == Oval && arr[1] == val && arr[2] == Oval && arr[3] == Oval && arr[4] == null) {
+            rs += win / 2
         }
         return rs
     },

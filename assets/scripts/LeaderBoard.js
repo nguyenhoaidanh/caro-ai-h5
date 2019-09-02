@@ -22,18 +22,20 @@ cc.Class({
             y -= step
             const tem = cc.instantiate(this.userItem)
             tem.position = cc.v2(x, y)
-            let lose = [' thua sấp mặt Bot', ' bị Bot cho ăn hành',
-                ' quá gà so với Bot', ' thua tâm phục khẩu phục']
-            let win = [' ăn may đánh bại Bot', ' ăn may mới thắng Bot',
-                ' vật vã mới thắng Bot', ' hên vl mới thắng Bot']
-            let begin = 0
-            let end = 3
-            let idx = Math.floor(Math.random() * (end + 1)) + begin
-            tem.getComponent('UserItem').lbName.string = '"' + item.name+ '"' + (item.userWin ? win[idx] : lose[idx])
-            tem.getComponent('UserItem').lbTime.string = 'Time: ' + item.time
+            tem.getComponent('UserItem').lbName.string =  item.name 
+            tem.getComponent('UserItem').lbTime.string =  this.formatTime(item.time)
+            tem.getComponent('UserItem').lbDate.string = item.date
+            if (item.userWin) {
+                tem.getComponent('UserItem').ava2.active = false
+            } else tem.getComponent('UserItem').ava1.active = false
             this.content.addChild(tem)
-            this.content.height += step / 1.2
+            this.content.height += step
         });
+    },
+    formatTime(time) {
+        let sec = Math.floor(time) % 60
+        let min = Math.floor(time / 60)
+        return `${String(min).length < 2 ? '0' + min : min} : ${String(sec).length < 2 ? '0' + sec : sec} s`
     },
     show() {
         this.node.active = true
@@ -44,7 +46,7 @@ cc.Class({
     getReq() {
         Axios.get(config.api_domain)
             .then(data => {
-                this.userItems = data.data.data
+                this.userItems = data.data
                 this.showListTop()
             })
             .catch(err => console.log('in leaderboard ' + err))

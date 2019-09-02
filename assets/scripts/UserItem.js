@@ -13,7 +13,10 @@ cc.Class({
 
     properties: {
        lbName:cc.Label,
-       lbTime: cc.Label
+       lbTime: cc.Label,
+       lbDate: cc.Label,
+       ava1: cc.Node,
+       ava2: cc.Node
     },
 
     // LIFE-CYCLE CALLBACKS:
