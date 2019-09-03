@@ -11,7 +11,7 @@ var db = Firebase.database();
 var usersRef = db.ref("/caro/BevZq4aG8qCUoi0mgoDc");
 router.post('/', (req, res) => {
     let now = new Date()
-    let str = `${now.getDay() + 1}/${now.getMonth() + 1}/${now.getFullYear()} ${now.getHours()}:${now.getMinutes()}`
+    let str = `${now.getDay() + 1}/${now.getMonth() + 1}/${now.getFullYear()} ${now.getHours()+7}:${now.getMinutes()}`
     var { name, time, opponent, userWin } = req.body;
     const newItem = ({ name, time, opponent, userWin, date: str });
     usersRef.push(newItem);
@@ -24,7 +24,7 @@ router.get('/', (req, res) => {
         let dataw = data.filter(e => e.userWin == true)
         dataw = dataw.sort((a, b) => a.time > b.time)
         let datal = data.filter(e => e.userWin == false)
-        datal = datal.sort((a, b) => a.time > b.time)
+        datal = datal.sort((a, b) => a.time < b.time)
         data = [...dataw, ...datal]
         res.send(data)
     })

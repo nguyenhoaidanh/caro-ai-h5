@@ -9,7 +9,7 @@ window.scores = {
     GappedThree: 100000,
     GappedFour: 100050,
     GappedTwoTwo: 100050,
-} 
+}
 window.count = {
     OpenThree: 0,
     CappedThree: 0,
@@ -23,8 +23,6 @@ window.count = {
 cc.Class({
     extends: cc.Component,
     properties: {
-        matrix: [],
-        isX: false,
         cell: cc.Prefab,
         size: 20,
         cellSize: 35,
@@ -33,7 +31,9 @@ cc.Class({
         btnTop: cc.Button,
         lbTurn: cc.Label,
         lbTime: cc.Label,
-        isFinished: false
+        matrix: [],
+        isX: false,
+        isFinished: true
     },
     onLoad() {
         document.body.style.background = 'lightblue'
@@ -50,7 +50,7 @@ cc.Class({
         }
         else localStorage.username = username
         this.depth = 1
-        this.isX = false
+        this.isX = true
         this.time = 0
         this.matrix = []
         this.isFinished = false
@@ -58,6 +58,7 @@ cc.Class({
         for (let i = 0; i < this.size; i++)
             this.matrix.push([...emptyRow])
         this.node.removeAllChildren(true)
+        this.makeNewCell(this.randomBet(0, 19), this.randomBet(0, 19))
     },
     start() {
         this.node.on(cc.Node.EventType.MOUSE_DOWN, this.onClick.bind(this));
@@ -80,9 +81,7 @@ cc.Class({
 
         //
         this.scheduleOnce(() => {
-            console.time()
             this.AIMove(this.matrix)
-            console.timeEnd()
         }, 0.001)
         //
     },
@@ -108,9 +107,7 @@ cc.Class({
                     ' quá gà so với Bot', ' thua tâm phục khẩu phục']
                 let win = [' ăn may đánh bại Bot', ' ăn may mới thắng Bot',
                     ' vật vã mới thắng Bot', ' hên vl mới thắng Bot']
-                let begin = 0
-                let end = 3
-                let idx = Math.floor(Math.random() * (end + 1)) + begin
+                let idx = this.randomBet(0, 3)
                 const item = {
                     name: username + (personWin != 'X' ? win[idx] : lose[idx]),
                     time: this.time,
@@ -124,6 +121,9 @@ cc.Class({
         }
         this.isX = !this.isX
         this.lbTurn.string = (!this.isX ? 'Your' : 'Bot') + ' turn'
+    },
+    randomBet(begin, end) {
+        return Math.floor(Math.random() * (end + 1)) + begin
     },
     toLeaderBoard(item) {
         cc.find('Canvas/BXH').getComponent("LeaderBoard").addToLeaderBoard(item)
@@ -151,12 +151,16 @@ cc.Class({
         let moves = this.genAllMove(state, isX)
         let bestMove = -win
         let bestMoveFound = moves[0]
-        for (let move of moves) {
-            let value = this.minimax(move, !isMax, !isX, -win, win, depth - 1)
-            if (value >= bestMove) {
-                bestMove = value
-                bestMoveFound = move
+        try {
+            for (let move of moves) {
+                let value = this.minimax(move, isMax, isX, -win, win, depth - 1)
+                if (value >= bestMove) {
+                    bestMove = value
+                    bestMoveFound = move
+                }
             }
+        } catch (state) {
+            return state
         }
         return bestMoveFound
     },
