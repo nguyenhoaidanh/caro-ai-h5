@@ -6,7 +6,9 @@ cc.Class({
     properties: {
         userItem: cc.Prefab,
         content: cc.Node,
-        userItems: []
+        userItems: [],
+        inputSearch: cc.EditBox,
+        btnSearch: cc.Button
     },
     start() {
         this.getReq()
@@ -15,15 +17,17 @@ cc.Class({
         this.postReq(item)
     },
     showListTop() {
-        let y = -20;
+        this.content.removeAllChildren(true)
+        let y = 50;
         let x = 0;
         let step = 90;
+        this.content.height=y
         this.userItems.forEach(item => {
             y -= step
             const tem = cc.instantiate(this.userItem)
             tem.position = cc.v2(x, y)
-            tem.getComponent('UserItem').lbName.string =  item.name 
-            tem.getComponent('UserItem').lbTime.string =  this.formatTime(item.time)
+            tem.getComponent('UserItem').lbName.string = item.name
+            tem.getComponent('UserItem').lbTime.string = this.formatTime(item.time)
             tem.getComponent('UserItem').lbDate.string = item.date
             if (item.userWin) {
                 tem.getComponent('UserItem').ava2.active = false
@@ -37,7 +41,9 @@ cc.Class({
         let min = Math.floor(time / 60)
         return `${String(min).length < 2 ? '0' + min : min} : ${String(sec).length < 2 ? '0' + sec : sec} s`
     },
-    show() {
+    show() { 
+        this.inputSearch.string = ''
+        this.getReq()
         this.node.active = true
     },
     hide() {
@@ -48,6 +54,15 @@ cc.Class({
             .then(data => {
                 this.userItems = data.data
                 this.showListTop()
+            })
+            .catch(err => console.log('in leaderboard ' + err))
+    },
+    getReqByName() {
+        let name = this.inputSearch.string.trim()
+        Axios.get(config.api_domain + '/includes/' + name)
+            .then(data => {
+                this.userItems = data.data 
+                this.showListTop() 
             })
             .catch(err => console.log('in leaderboard ' + err))
     },
