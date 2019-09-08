@@ -59,7 +59,7 @@ cc.Class({
     },
     getReqByName() {
         let name = this.inputSearch.string.trim()
-        Axios.get(config.api_domain + '/includes/' + name)
+        Axios.get(config.api_domain + 'includes/' + name)
             .then(data => {
                 this.userItems = data.data 
                 this.showListTop() 
